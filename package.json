@@ -1,0 +1,10 @@
+{
+  "name": "ProjectTheta",
+  "version": "1.0.0",
+  "description": "ProjectTheta Chat Function",
+  "dependencies": {
+  "express": "~3.3.5",
+  "socket.io": "0.9.16",
+  "redis": "~0.8.4"
+ }
+}

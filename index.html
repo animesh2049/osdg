@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Project Theta</title>
+  <script src="jquery-1.10.1.min.js"></script>
+  <script src="socket.io/socket.io.js"></script>
+  <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <!-- <link rel="stylesheet" href="new.css"> -->
+</head>
+<body>
+
+  <!-- <ul id="chatbox1"> -->
+  <div class="container">
+
+    <div class="row">
+      <div class="col-md-4">
+        <form id="chat_form1">
+          <textarea placeholder="satyam" class="text_chat" id="10140179" ip="10.1.40.179"></textarea>
+          <!-- <button type="submit">Send</button> -->
+        </form>
+        <ul class="chatbox">
+
+        </ul>        
+      </div>
+
+      <div class="col-md-4">
+        <form id="chat_form2">
+          <textarea placeholder="animesh" class="text_chat" id="10140100" ip="10.42.0.100"></textarea>
+          <!-- <button type="submit">Send</button> -->
+        </form>
+        <ul class="chatbox">
+
+        </ul>    
+      </div>
+
+      <div class="col-md-4">
+        <form id="chat_form3">
+          <textarea placeholder="self" class="text_chat" id="1014093" ip="10.1.40.93"></textarea>
+          <!-- <button type="submit">Send</button> -->
+        </form>
+        <ul class="chatbox">
+        </ul>    
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var connectionsMade = []; //Take ip as the key and if connection is extablised, then value is true else undefined
+    var socketsByIp = []; // (key:value) :: (ip:socket function)
+    var name;
+
+    function sendSocketMessage(ip, port, msg){
+      socketsByIp[ip].emit('message', {'ip': ip, 'message': msg});
+    }
+
+    function establishConnection(ip, port){
+      if(connectionsMade[ip] == true){
+        return ;
+      }
+      else{
+        var socket = io.connect("http://" + ip + ":" + port);
+        socket.on('connect', function(){
+          socket.emit('join', name, function(){
+            // alert("Joined with ip address" + ip);
+            socketsByIp[ip] = socket;
+            connectionsMade[ip] = true;
+            socket.on('message', function(data){
+              // alert(data.Name)
+              insertMessage({'message': data.message,'ip': data.ip, 'Name' : data.Name});
+            });
+          });
+        });
+      }
+    }
+
+    $(".text_chat").click(function(e){
+      var ip = $(this).attr('ip');
+      var port = 55555;
+      establishConnection(ip, port);
+    })
+
+    $('.text_chat').keypress(function(e){
+      if(e.keyCode == 13 && !e.shiftKey) {
+        e.preventDefault();
+        submitForm($(this));
+      }
+    });
+
+    var submitForm = function(obj){
+      var msg = obj.val();
+      obj.val("");
+      insertMessage({'message': msg,'ip': obj.attr('ip')});
+      sendSocketMessage(obj.attr('ip'),55555,msg);
+    }
+
+    $('#chat_form').on('submit', function(e){
+      e.preventDefault();
+      submitForm();
+    });
+
+    var insertMessage = function(message){
+      // alert(message.message)
+      var li;
+      if (message.Name){
+        li = '<li class="msg"><span class="name">' + message.Name + ':</span><br />' + message.message + '</li>'
+      }else{
+        li = '<li class="msg"><span class="name">' + name + ':</span><br />' + message.message + '</li>'
+        // li = '<li class="msg 2">' + message.message + '</li>'
+      }
+      // alert(li);
+      var ip = message.ip.replace(/\./g, "");
+      console.log(ip);
+      $("#" + ip).closest('div').find('.chatbox').append(li);
+    }
+    name = prompt("Please enter you name");
+  </script>
+
+</body>
+</html>

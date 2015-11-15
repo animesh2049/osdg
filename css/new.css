@@ -1,0 +1,14 @@
+
+ul#chatbox li.self{
+  text-align: right;
+}
+
+#chat_form{
+  position: fixed;
+  width:100%;
+  bottom: 0px;
+}
+
+#chat_input{
+  width:100%;
+}
